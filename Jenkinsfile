@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = "datagen"
         DOCKER_REGISTRY = "mpfabio/datagen"
-        WORKSPACE_UNIX = convertPathToUnixStyle(env.WORKSPACE) 
+        WORKSPACE_UNIX = convertPathToUnixStyle(env.WORKSPACE)
     }
 
     stages {
