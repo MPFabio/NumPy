@@ -17,14 +17,14 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building the Docker image...'
-                bat 'docker build -t %DOCKER_IMAGE% .'
+                bat 'docker build -t ${DOCKER_IMAGE} .'
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Running tests inside the Docker container...'
-                bat 'docker run --rm %DOCKER_IMAGE% python -m unittest discover -s . -p "test_*.py"'
+                bat 'docker run --rm ${DOCKER_IMAGE} python -m unittest discover -s . -p "test_*.py"'
             }
         }
 
@@ -33,8 +33,8 @@ pipeline {
                 withCredentials([string(credentialsId: 'docker-pat', variable: 'DOCKER_PAT')]) {
                     echo 'DOCKER_PAT is masked but length: ' + ${DOCKER_PAT}.length()
                     bat 'echo %DOCKER_PAT% | docker login -u mpfabio --password-stdin'
-                    bat 'docker tag %DOCKER_IMAGE% %DOCKER_REGISTRY%:latest'
-                    bat 'docker push %DOCKER_REGISTRY%:latest'
+                    bat 'docker tag ${DOCKER_IMAGE} ${DOCKER_REGISTRY}:latest'
+                    bat 'docker push ${DOCKER_REGISTRY}:latest'
                 }
             }
         }
