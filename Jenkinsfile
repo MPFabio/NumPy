@@ -28,13 +28,13 @@ pipeline {
             }
         }
 
-        stage('Verify Token') {
+        stage('Debug Login') {
             steps {
                 withCredentials([string(credentialsId: 'docker-pat', variable: 'DOCKER_PAT')]) {
                     script {
-                        echo 'Verifying the Docker PAT...'
-                        bat "echo %DOCKER_PAT% | docker login -u mpfabio --password-stdin"
-                        bat "curl -v -H \"Authorization: JWT %DOCKER_PAT%\" https://registry-1.docker.io/v2/"
+                        echo 'Using Docker PAT to login...'
+                        bat 'echo %DOCKER_PAT% | docker login -u mpfabio --password-stdin'
+                        bat 'docker info'
                     }
                 }
             }
@@ -43,8 +43,8 @@ pipeline {
         stage('Push') {
             steps {
                 withCredentials([string(credentialsId: 'docker-pat', variable: 'DOCKER_PAT')]) {
-                    echo 'Using Docker PAT to login...'
-                    bat "echo %DOCKER_PAT% | docker login -u mpfabio --password-stdin"
+                    echo 'Using Docker PAT to push image...'
+                    bat 'echo %DOCKER_PAT% | docker login -u mpfabio --password-stdin'
                     bat 'docker tag %DOCKER_IMAGE% %DOCKER_REGISTRY%:latest'
                     bat 'docker push %DOCKER_REGISTRY%:latest'
                 }
