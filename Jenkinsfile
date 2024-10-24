@@ -3,9 +3,9 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "DataGen"
-        DOCKER_REGISTRY = ""
-        DOCKER_USER =""
-        DOCKER_PASSWORD = ""
+        DOCKER_REGISTRY = "docker.io/mpfabio"
+        DOCKER_USER = credentials('docker-username')
+        DOCKER_PASSWORD = credentials('docker-password')
     }
 
     stages {
