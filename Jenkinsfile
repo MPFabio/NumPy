@@ -14,7 +14,6 @@ pipeline {
                 git branch: 'master', url: 'https://github.com/MPFabio/NumPy', credentialsId: 'github-credentials'
             }
         }
-    }
 
         stage('Verify Tools') {
             steps {
@@ -25,7 +24,6 @@ pipeline {
             }
         }
 
-        
         stage('Build') {
             steps {
                 script {
@@ -51,10 +49,14 @@ pipeline {
                 }
             }
         }
+    }
 
     post {
         always {
-            sh 'docker system prune -f'
+            script {
+                sh 'docker system prune -f'
+            }
         }
     }
 }
+
