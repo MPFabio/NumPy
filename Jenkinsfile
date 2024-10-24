@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "datagen"
-        DOCKER_REGISTRY = "docker.io/mpfabio/datagen"
+        DOCKER_REGISTRY = "mpfabio/datagen"
     }
 
     stages {
@@ -39,21 +39,16 @@ pipeline {
 
         stage('Push') {
             steps {
-                withCredentials([
-                    usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD'),
-                    string(credentialsId: 'docker-token', variable: 'DOCKER_TOKEN')
-                ]) {
+                withCredentials([string(credentialsId: 'docker-token', variable: 'DOCKER_TOKEN')]) {
                     script {
                         if (isUnix()) {
-                            sh 'echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USER} --password-stdin'
-                            sh 'docker tag ${DOCKER_IMAGE} ${DOCKER_REGISTRY}:${DOCKER_IMAGE}'
-                            sh 'echo ${DOCKER_TOKEN} | docker login --username ${DOCKER_USER} --password-stdin'
-                            sh 'docker push ${DOCKER_REGISTRY}:${DOCKER_IMAGE}'
+                            sh 'echo "${DOCKER_TOKEN}" | docker login --username ${DOCKER_USER} --password-stdin'
+                            sh 'docker tag ${DOCKER_IMAGE} ${DOCKER_REGISTRY}:latest'
+                            sh 'docker push ${DOCKER_REGISTRY}:latest'
                         } else {
-                            bat 'echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USER% --password-stdin'
-                            bat 'docker tag %DOCKER_IMAGE% %DOCKER_REGISTRY%:%DOCKER_IMAGE%'
                             bat 'echo %DOCKER_TOKEN% | docker login --username %DOCKER_USER% --password-stdin'
-                            bat 'docker push %DOCKER_REGISTRY%:%DOCKER_IMAGE%'
+                            bat 'docker tag %DOCKER_IMAGE% %DOCKER_REGISTRY%:latest'
+                            bat 'docker push %DOCKER_REGISTRY%:latest'
                         }
                     }
                 }
