@@ -18,8 +18,13 @@ pipeline {
         stage('Verify Tools') {
             steps {
                 script {
-                    sh 'docker --version'
-                    sh 'git --version'
+                    if (isUnix()) {
+                        sh 'docker --version'
+                        sh 'git --version'
+                    } else {
+                        bat 'docker --version'
+                        bat 'git --version'
+                    }
                 }
             }
         }
@@ -27,7 +32,11 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    sh 'docker build -t ${DOCKER_IMAGE} .'
+                    if (isUnix()) {
+                        sh 'docker build -t ${DOCKER_IMAGE} .'
+                    } else {
+                        bat 'docker build -t %DOCKER_IMAGE% .'
+                    }
                 }
             }
         }
@@ -35,7 +44,11 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    sh 'docker run --rm ${DOCKER_IMAGE} python -m unittest discover -s tests'
+                    if (isUnix()) {
+                        sh 'docker run --rm ${DOCKER_IMAGE} python -m unittest discover -s tests'
+                    } else {
+                        bat 'docker run --rm %DOCKER_IMAGE% python -m unittest discover -s tests'
+                    }
                 }
             }
         }
@@ -43,9 +56,15 @@ pipeline {
         stage('Push') {
             steps {
                 script {
-                    sh 'docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}'
-                    sh 'docker tag ${DOCKER_IMAGE} ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest'
-                    sh 'docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest'
+                    if (isUnix()) {
+                        sh 'docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}'
+                        sh 'docker tag ${DOCKER_IMAGE} ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest'
+                        sh 'docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest'
+                    } else {
+                        bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASSWORD% %DOCKER_REGISTRY%'
+                        bat 'docker tag %DOCKER_IMAGE% %DOCKER_REGISTRY%/%DOCKER_IMAGE%:latest'
+                        bat 'docker push %DOCKER_REGISTRY%/%DOCKER_IMAGE%:latest'
+                    }
                 }
             }
         }
@@ -54,9 +73,12 @@ pipeline {
     post {
         always {
             script {
-                sh 'docker system prune -f'
+                if (isUnix()) {
+                    sh 'docker system prune --filter "until=24h" -f'
+                } else {
+                    bat 'docker system prune --filter "until=24h" -f'
+                }
             }
         }
     }
 }
-
