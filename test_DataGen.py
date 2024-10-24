@@ -1,5 +1,5 @@
 import unittest
-from app import app
+from DataGen import app
 
 class FlaskTestCase(unittest.TestCase):
 
