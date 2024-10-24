@@ -4,6 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = "datagen"
         DOCKER_REGISTRY = "mpfabio/datagen"
+        WORKSPACE_UNIX = convertPathToUnixStyle(env.WORKSPACE)
     }
 
     stages {
@@ -24,7 +25,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    docker.image("${DOCKER_IMAGE}").inside {
+                    docker.image("${DOCKER_IMAGE}").inside("-w /workspace -v ${WORKSPACE_UNIX}:/workspace") {
                         sh 'python -m unittest discover -s . -p "test_*.py"'
                     }
                 }
@@ -49,4 +50,8 @@ pipeline {
             }
         }
     }
+}
+
+def convertPathToUnixStyle(String path) {
+    return path.replaceAll('C:', '/c').replaceAll('\\\\', '/')
 }
