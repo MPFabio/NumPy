@@ -31,8 +31,8 @@ pipeline {
         stage('Push') {
             steps {
                 withCredentials([string(credentialsId: 'docker-pat', variable: 'DOCKER_PAT')]) {
-                    echo 'Using Docker PAT: $DOCKER_PAT'
-                    bat 'echo %DOCKER_PAT% | docker login --username mpfabio --password-stdin'
+                    echo 'DOCKER_PAT is masked but length: ' + ${DOCKER_PAT}.length()
+                    bat 'echo %DOCKER_PAT% | docker login -u mpfabio --password-stdin'
                     bat 'docker tag %DOCKER_IMAGE% %DOCKER_REGISTRY%:latest'
                     bat 'docker push %DOCKER_REGISTRY%:latest'
                 }
