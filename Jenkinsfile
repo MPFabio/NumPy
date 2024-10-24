@@ -4,6 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = "datagen"
         DOCKER_REGISTRY = "mpfabio/datagen"
+        WORKSPACE_UNIX = convertPathToUnixStyle(env.WORKSPACE) 
     }
 
     stages {
@@ -24,7 +25,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    docker.image("${DOCKER_IMAGE}").inside {
+                    docker.image("${DOCKER_IMAGE}").inside("-w ${WORKSPACE_UNIX} -v ${WORKSPACE_UNIX}:${WORKSPACE_UNIX}") {
                         sh 'python -m unittest discover -s . -p "test_*.py"'
                     }
                 }
@@ -42,11 +43,11 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            script {
-                dockerPrune()
+        stage('Cleanup') {
+            steps {
+                script {
+                    sh 'docker system prune -f'
+                }
             }
         }
-    }
 }
