@@ -53,10 +53,10 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Push') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                withCredentials([string(credentialsId: 'docker-token', variable: 'DOCKER_TOKEN')]) {
                     script {
                         if (isUnix()) {
                             sh 'echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USER} --password-stdin ${DOCKER_REGISTRY}'
