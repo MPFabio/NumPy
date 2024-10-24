@@ -4,7 +4,6 @@ pipeline {
     environment {
         DOCKER_IMAGE = "datagen"
         DOCKER_REGISTRY = "mpfabio/datagen"
-        WORKSPACE_UNIX = convertPathToUnixStyle(env.WORKSPACE)
     }
 
     stages {
@@ -17,7 +16,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}")
+                    sh 'docker build -t ${DOCKER_IMAGE} .'
                 }
             }
         }
@@ -25,18 +24,18 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    docker.image("${DOCKER_IMAGE}").inside("-w /workspace -v ${WORKSPACE_UNIX}:/workspace") {
-                        sh 'python -m unittest discover -s . -p "test_*.py"'
-                    }
+                    sh 'docker run --rm ${DOCKER_IMAGE} python -m unittest discover -s . -p "test_*.py"'
                 }
             }
         }
 
         stage('Push') {
             steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
-                        docker.image("${DOCKER_IMAGE}").push('latest')
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    script {
+                        sh 'echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USER} --password-stdin'
+                        sh 'docker tag ${DOCKER_IMAGE} ${DOCKER_REGISTRY}:latest'
+                        sh 'docker push ${DOCKER_REGISTRY}:latest'
                     }
                 }
             }
@@ -50,8 +49,4 @@ pipeline {
             }
         }
     }
-}
-
-def convertPathToUnixStyle(String path) {
-    return path.replaceAll('C:', '/c').replaceAll('\\\\', '/')
 }
