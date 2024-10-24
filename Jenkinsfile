@@ -3,9 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "datagen"
-        DOCKER_REGISTRY = "docker.io/mpfabio"
-        DOCKER_CREDENTIALS = credentials('docker-hub-credentials')
-    
+        DOCKER_REGISTRY = "docker.io/mpfabio"   
     }
 
     stages {
@@ -41,15 +39,17 @@ pipeline {
 
         stage('Push') {
             steps {
-                script {
-                    if (isUnix()) {
-                        sh 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin ${DOCKER_REGISTRY}'
-                        sh 'docker tag ${DOCKER_IMAGE} ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest'
-                        sh 'docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest'
-                    } else {
-                        bat 'echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USER% --password-stdin %DOCKER_REGISTRY%'
-                        bat 'docker tag %DOCKER_IMAGE% %DOCKER_REGISTRY%/%DOCKER_IMAGE%:latest'
-                        bat 'docker push %DOCKER_REGISTRY%/%DOCKER_IMAGE%:latest'
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    script {
+                        if (isUnix()) {
+                            sh 'echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USER} --password-stdin ${DOCKER_REGISTRY}'
+                            sh 'docker tag ${DOCKER_IMAGE} ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest'
+                            sh 'docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest'
+                        } else {
+                            bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASSWORD% %DOCKER_REGISTRY%'
+                            bat 'docker tag %DOCKER_IMAGE% %DOCKER_REGISTRY%/%DOCKER_IMAGE%:latest'
+                            bat 'docker push %DOCKER_REGISTRY%/%DOCKER_IMAGE%:latest'
+                        }
                     }
                 }
             }
