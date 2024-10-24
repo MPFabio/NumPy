@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "DataGen"
+        DOCKER_IMAGE = "datagen"
         DOCKER_REGISTRY = "docker.io/mpfabio"
         DOCKER_USER = credentials('docker-username')
         DOCKER_PASSWORD = credentials('docker-password')
