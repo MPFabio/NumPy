@@ -28,23 +28,11 @@ pipeline {
             }
         }
 
-        stage('Verify Token') {
-            steps {
-                withCredentials([string(credentialsId: 'docker-pat', variable: 'DOCKER_PAT')]) {
-                    script {
-                        echo 'Verifying the Docker PAT...'
-                        writeFile file: 'token.txt', text: "${DOCKER_PAT}"
-                        echo 'Token has been written to file token.txt'
-                        bat 'type token.txt'
-                    }
-                }
-            }
-        }
-
         stage('Push') {
             steps {
                 withCredentials([string(credentialsId: 'docker-pat', variable: 'DOCKER_PAT')]) {
-                    echo 'Using Docker PAT to login...'
+                    echo "Token part (first 5 characters): ${DOCKER_PAT.take(5)}"
+                    echo "Token length: ${DOCKER_PAT.length()}"
                     bat "echo %DOCKER_PAT% | docker login -u mpfabio --password-stdin"
                     bat 'docker tag %DOCKER_IMAGE% %DOCKER_REGISTRY%:latest'
                     bat 'docker push %DOCKER_REGISTRY%:latest'
