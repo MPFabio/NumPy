@@ -41,7 +41,6 @@ pipeline {
                 }
             }
         }
-    }
 
         stage('Cleanup') {
             steps {
@@ -50,4 +49,5 @@ pipeline {
                 }
             }
         }
+    }
 }
