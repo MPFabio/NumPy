@@ -51,3 +51,7 @@ pipeline {
         }
     }
 }
+
+def convertPathToUnixStyle(String path) {
+    return path.replaceAll('C:', '/c').replaceAll('\\\\', '/')
+}
