@@ -39,14 +39,12 @@ pipeline {
 
         stage('Push') {
             steps {
-                withCredentials([string(credentialsId: 'docker-token', variable: 'DOCKER_TOKEN')]) {
+                withCredentials([string(credentialsId: 'docker-token')]) {
                     script {
                         if (isUnix()) {
-                            sh 'echo "${DOCKER_TOKEN}" | docker login --username ${DOCKER_USER} --password-stdin'
                             sh 'docker tag ${DOCKER_IMAGE} ${DOCKER_REGISTRY}:latest'
                             sh 'docker push ${DOCKER_REGISTRY}:latest'
                         } else {
-                            bat 'echo %DOCKER_TOKEN% | docker login --username %DOCKER_USER% --password-stdin'
                             bat 'docker tag %DOCKER_IMAGE% %DOCKER_REGISTRY%:latest'
                             bat 'docker push %DOCKER_REGISTRY%:latest'
                         }
