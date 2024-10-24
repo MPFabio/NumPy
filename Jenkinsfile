@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "datagen"
-        DOCKER_REGISTRY = "docker.io/mpfabio/datagen"   
+        DOCKER_REGISTRY = "docker.io/mpfabio/datagen"
     }
 
     stages {
@@ -37,35 +37,23 @@ pipeline {
             }
         }
 
-
-        stage('List Repos') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    script {
-                        if (isUnix()) {
-                            sh 'echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USER} --password-stdin ${DOCKER_REGISTRY}'
-                            sh 'docker image ls'
-                        } else {
-                            bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASSWORD% %DOCKER_REGISTRY%'
-                            bat 'docker image ls'
-                        }
-                    }
-                }
-            }
-        }
-
         stage('Push') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                withCredentials([
+                    usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD'),
+                    string(credentialsId: 'docker-token', variable: 'DOCKER_TOKEN')
+                ]) {
                     script {
                         if (isUnix()) {
                             sh 'echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USER} --password-stdin'
-                            sh 'docker tag ${DOCKER_IMAGE} ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest'
-                            sh 'docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest'
+                            sh 'docker tag ${DOCKER_IMAGE} ${DOCKER_REGISTRY}:${DOCKER_IMAGE}'
+                            sh 'echo ${DOCKER_TOKEN} | docker login --username ${DOCKER_USER} --password-stdin'
+                            sh 'docker push ${DOCKER_REGISTRY}:${DOCKER_IMAGE}'
                         } else {
-                            bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASSWORD% %DOCKER_REGISTRY%'
-                            bat 'docker tag %DOCKER_IMAGE% %DOCKER_REGISTRY%/%DOCKER_IMAGE%:latest'
-                            bat 'docker push %DOCKER_REGISTRY%/%DOCKER_IMAGE%:latest'
+                            bat 'echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USER% --password-stdin'
+                            bat 'docker tag %DOCKER_IMAGE% %DOCKER_REGISTRY%:%DOCKER_IMAGE%'
+                            bat 'echo %DOCKER_TOKEN% | docker login --username %DOCKER_USER% --password-stdin'
+                            bat 'docker push %DOCKER_REGISTRY%:%DOCKER_IMAGE%'
                         }
                     }
                 }
