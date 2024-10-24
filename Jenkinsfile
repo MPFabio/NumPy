@@ -42,11 +42,11 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
                     script {
                         if (isUnix()) {
-                            sh 'echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USER --password-stdin'
+                            sh 'echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USER --password-stdin || exit 1'
                             sh 'docker tag $DOCKER_IMAGE $DOCKER_REGISTRY:latest'
                             sh 'docker push $DOCKER_REGISTRY:latest'
                         } else {
-                            bat 'echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USER% --password-stdin'
+                            bat 'echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USER% --password-stdin || exit 1'
                             bat 'docker tag %DOCKER_IMAGE% %DOCKER_REGISTRY%:latest'
                             bat 'docker push %DOCKER_REGISTRY%:latest'
                         }
