@@ -15,20 +15,6 @@ pipeline {
             }
         }
 
-        stage('Verify Tools') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        sh 'docker --version'
-                        sh 'git --version'
-                    } else {
-                        bat 'docker --version'
-                        bat 'git --version'
-                    }
-                }
-            }
-        }
-
         stage('Build') {
             steps {
                 script {
@@ -45,9 +31,9 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'docker run --rm ${DOCKER_IMAGE} python -m unittest discover -s tests'
+                        sh 'docker run --rm ${DOCKER_IMAGE} python -m unittest discover -s . -p "test_*.py"'
                     } else {
-                        bat 'docker run --rm %DOCKER_IMAGE% python -m unittest discover -s tests'
+                        bat 'docker run --rm %DOCKER_IMAGE% python -m unittest discover -s . -p "test_*.py"'
                     }
                 }
             }
