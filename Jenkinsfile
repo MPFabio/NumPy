@@ -28,6 +28,19 @@ pipeline {
             }
         }
 
+        stage('Verify Token') {
+            steps {
+                withCredentials([string(credentialsId: 'docker-pat', variable: 'DOCKER_PAT')]) {
+                    script {
+                        echo 'Verifying the Docker PAT...'
+                        writeFile file: 'token.txt', text: "${DOCKER_PAT}"
+                        echo 'Token has been written to file token.txt'
+                        bat 'type token.txt'
+                    }
+                }
+            }
+        }
+
         stage('Push') {
             steps {
                 withCredentials([string(credentialsId: 'docker-pat', variable: 'DOCKER_PAT')]) {
