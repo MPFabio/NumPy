@@ -1,5 +1,11 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            label 'docker'
+            image 'docker:19.03.12'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
 
     environment {
         DOCKER_IMAGE = "datagen"
