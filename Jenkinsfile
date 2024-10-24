@@ -30,9 +30,9 @@ pipeline {
 
         stage('Push') {
             steps {
-                withCredentials([string(credentialsId: 'docker-token', variable: 'DOCKER_TOKEN')]) {
+                withCredentials([string(credentialsId: 'docker-pat', variable: 'DOCKER_PAT')]) {
                     echo 'Pushing the Docker image to Docker Hub...'
-                    bat 'echo %DOCKER_TOKEN% | docker login --username mpfabio --password-stdin'
+                    bat 'echo %DOCKER_PAT% | docker login --username mpfabio --password-stdin'
                     bat 'docker tag %DOCKER_IMAGE% %DOCKER_REGISTRY%:latest'
                     bat 'docker push %DOCKER_REGISTRY%:latest'
                 }
