@@ -37,6 +37,23 @@ pipeline {
             }
         }
 
+
+        stage('List Repos') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    script {
+                        if (isUnix()) {
+                            sh 'echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USER} --password-stdin ${DOCKER_REGISTRY}'
+                            sh 'docker image ls'
+                        } else {
+                            bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASSWORD% %DOCKER_REGISTRY%'
+                            bat 'docker image ls'
+                        }
+                    }
+                }
+            }
+        }
+        
         stage('Push') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
