@@ -12,3 +12,4 @@ Pour exécuter ce projet, vous aurez besoin des bibliothèques suivantes :
 - `plotly`
 - `fpdf`
 - `streamlit`
+- `flask`
