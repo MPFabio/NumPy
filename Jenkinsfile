@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "datagen"
-        DOCKER_REGISTRY = "docker.io/mpfabio"   
+        DOCKER_REGISTRY = "docker.io/mpfabio/datagen"   
     }
 
     stages {
