@@ -39,12 +39,14 @@ pipeline {
 
         stage('Push') {
             steps {
-                withCredentials([string(credentialsId: 'docker-token')]) {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
                     script {
                         if (isUnix()) {
-                            sh 'docker tag ${DOCKER_IMAGE} ${DOCKER_REGISTRY}:latest'
-                            sh 'docker push ${DOCKER_REGISTRY}:latest'
+                            sh 'echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USER --password-stdin'
+                            sh 'docker tag $DOCKER_IMAGE $DOCKER_REGISTRY:latest'
+                            sh 'docker push $DOCKER_REGISTRY:latest'
                         } else {
+                            bat 'echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USER% --password-stdin'
                             bat 'docker tag %DOCKER_IMAGE% %DOCKER_REGISTRY%:latest'
                             bat 'docker push %DOCKER_REGISTRY%:latest'
                         }
